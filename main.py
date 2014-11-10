@@ -9,7 +9,6 @@ import urlparse
 
 from flask import render_template, redirect, session, make_response, url_for, g, request, abort, \
     Response
-from gae_mini_profiler.templatetags import profiler_includes
 from google.appengine.api import taskqueue, urlfetch
 
 from sparkprs import app, VERSION
@@ -125,7 +124,6 @@ def build_response(template, max_age=60, **kwargs):
     if g.user and "admin" in g.user.roles:
         navigation_bar.append(('/admin', 'admin', 'Admin', None))
     default_context = {
-        'profiler_includes': profiler_includes(),
         'navigation_bar': navigation_bar,
         'user': g.user,
         'APP_VERSION': VERSION,
@@ -136,7 +134,9 @@ def build_response(template, max_age=60, **kwargs):
     return response
 
 
-def build_pr_json_response(prs, max_age=60):
+@app.route('/search-prs')
+def search_prs():
+    prs = Issue.query(Issue.state == "open").order(-Issue.updated_at).fetch()
     json_dicts = []
     for pr in prs:
         d = {
@@ -149,25 +149,14 @@ def build_pr_json_response(prs, max_age=60):
             'lines_added': pr.lines_added,
             'lines_deleted': pr.lines_deleted,
             'lines_changed': pr.lines_changed,
-            'files': (pr.files_json or {}),
-            "github_pr_json": (pr.pr_json or {}),
             'is_mergeable': pr.is_mergeable,
-            'commenters': pr.commenters,
+            'commenters': [{'username': u, 'data': d} for (u, d) in pr.commenters],
             'last_jenkins_outcome': pr.last_jenkins_outcome,
-        }
+            }
         json_dicts.append(d)
     response = Response(json.dumps(json_dicts, indent=2, separators=(',', ': ')),
                         mimetype='application/json')
-    response.cache_control.max_age = max_age
     return response
-
-
-@app.route("/all-prs.json")
-def all_prs_json():
-    offset = int(request.args.get('offset'))
-    limit = 100
-    prs = Issue.query(Issue.number > offset).order(Issue.number).fetch(limit)
-    return build_pr_json_response(prs)
 
 
 @app.route("/trigger-jenkins/<int:number>", methods=['GET', 'POST'])

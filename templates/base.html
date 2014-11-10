@@ -8,7 +8,7 @@
 
 <body>
 
-<nav class="navbar navbar-default" role="navigation">
+<nav id="main-nav" class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="/">Spark Pull Requests</a>
@@ -48,17 +48,16 @@
         </div>
     </div><!-- /.container-fluid -->
 </nav>
+<div id="sub-nav-container"></div>
+
 
 <div class="container-fluid">
     {% block content %}
     {% endblock %}
 </div>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
-<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/sorttable/2/sorttable.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script>
 <script type="text/javascript" src="/static/js/main.js?version={{APP_VERSION}}"></script>
-{{ profiler_includes | safe }}
+{% block extrajs %}
+{% endblock %}
 </body>
 </html>
