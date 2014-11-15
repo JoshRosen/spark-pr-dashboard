@@ -116,7 +116,10 @@ define([
         prs: React.PropTypes.array.isRequired
       },
       getInitialState: function() {
-        return {sortCol: '', sortDirection: 'unsorted', sortedPrs: this.props.prs}
+        return {sortCol: '', sortDirection: 'unsorted'}
+      },
+      componentWillReceiveProps: function(newProps) {
+        this.doSort(this.state.sortCol, this.state.sortDirection, newProps.prs);
       },
       sortFunctions:  {
         'Number': function(pr) { return pr.number; },
@@ -128,22 +131,28 @@ define([
         'Merges': function(pr) { return pr.is_mergeable; },
         'Jenkins': function(pr) { return pr.last_jenkins_outcome; }
       },
-      onSort: function(colName) {
-        var newSortDirection;
-        if (colName === this.state.sortCol) {
-          if (this.state.sortDirection === 'unsorted' || this.state.sortDirection === 'asc') {
-            newSortDirection = 'desc'
-          } else if (this.state.sortDirection === 'desc') {
-            newSortDirection = 'asc'
-          }
-        } else {
-          newSortDirection = 'desc'
-        }
-        var newSortedPrs = _.sortBy(this.state.sortedPrs, this.sortFunctions[colName]);
-        if (newSortDirection === 'desc') {
+      doSort: function (sortCol, sortDirection, sortedPrs) {
+        // Sort the PRs in this table and update its state
+        var newSortedPrs = _.sortBy(sortedPrs, this.sortFunctions[sortCol]);
+        if (sortDirection === 'desc') {
           newSortedPrs.reverse();
         }
-        this.setState({sortCol: colName, sortDirection: newSortDirection, sortedPrs: newSortedPrs});
+        this.setState({sortCol: sortCol, sortDirection: sortDirection, sortedPrs: newSortedPrs});
+      },
+      onSort: function(sortCol) {
+        // Callback when a user clicks on a column header to perform a sort.
+        // Handles the logic of toggling sort directions
+        var sortDirection;
+        if (sortCol === this.state.sortCol) {
+          if (this.state.sortDirection === 'unsorted' || this.state.sortDirection === 'asc') {
+            sortDirection = 'desc'
+          } else if (this.state.sortDirection === 'desc') {
+            sortDirection = 'asc'
+          }
+        } else {
+          sortDirection = 'desc'
+        }
+        this.doSort(sortCol, sortDirection, this.state.sortedPrs);
       },
       render: function() {
         var tableRows = _.map(this.state.sortedPrs, function(pr) {
