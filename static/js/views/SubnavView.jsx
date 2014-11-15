@@ -7,6 +7,11 @@ define([
     "use strict";
 
     var NavEntry = React.createClass({
+      propTypes: {
+        active: React.PropTypes.bool.isRequired,
+        onClick: React.PropTypes.func.isRequired,
+        label: React.PropTypes.string.isRequired
+      },
       render: function() {
         return (
           <li className={this.props.active ? "subnav-active" : ""}>
@@ -19,6 +24,14 @@ define([
     });
 
     var SubnavView = React.createClass({
+      propTypes: {
+        elems: React.PropTypes.arrayOf(React.PropTypes.shape({
+          label: React.PropTypes.string.isRequired,
+          key: React.PropTypes.string.isRequired
+        })),
+        active: React.PropTypes.string.isRequired,
+        onSelect: React.PropTypes.func.isRequired
+      },
       onSelect: function(key) {
         this.props.onSelect(key)
       },

@@ -16,12 +16,10 @@ define([
 
   Controller.prototype.onSelectComponent = function(component) {
     this.selectedComponent = component;
-    console.log("Selected component " + this.selectedComponent);
     this.render();
   };
 
   Controller.prototype.render = function() {
-    console.log(this.selectedComponent);
     // The response is a flat list of pull requests.
     // Each pull request may be associated with multiple components, so flatMap them out:
     var flattenedwithComponents = _.flatten(_.map(this.prs, function (pr) {

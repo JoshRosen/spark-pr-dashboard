@@ -1,12 +1,12 @@
 define([
     'react',
     'jquery',
-    'underscore',
-    'marked'
+    'underscore'
   ],
   function (React, $, _) {
     "use strict";
 
+    // TODO:
     var hasJenkins = window.userinfo && _.contains(window.userinfo, "jenkins");
 
     var JIRALink = React.createClass({displayName: 'JIRALink',
@@ -41,6 +41,36 @@ define([
       }
     });
 
+    var PRTableColumnHeader = React.createClass({displayName: 'PRTableColumnHeader',
+      propTypes: {
+        name: React.PropTypes.string.isRequired,
+        sortable: React.PropTypes.bool.isRequired,
+        onSort: React.PropTypes.func.isRequired,
+        sortDirection: React.PropTypes.oneOf(['asc', 'desc', 'unsorted'])
+      },
+      getDefaultProps: function() {
+        return {
+          sortable: true,
+          sortDirection: 'unsorted'
+        };
+      },
+      sortDirectionIndicator: function () {
+        if (this.props.sortDirection === 'asc') {
+          return React.createElement("span", null, " ▾")
+        } else if (this.props.sortDirection === 'desc') {
+          return React.createElement("span", null, " ▴")
+        } else {
+          return ''
+        }
+      },
+      onSort: function() {
+        this.props.onSort(this.props.name);
+      },
+      render: function() {
+        return React.createElement("th", {onClick: this.onSort}, this.props.name, " ", this.sortDirectionIndicator());
+      }
+    });
+
     var PRTableRow = React.createClass({displayName: 'PRTableRow',
       render: function() {
         var pr = this.props.pr;
@@ -61,19 +91,19 @@ define([
                 pr.parsed_title.metadata + pr.parsed_title.title
               )
             ), 
-            React.createElement("td", {sorttable_customkey: pr.user.toLowerCase()}, 
+            React.createElement("td", null, 
               React.createElement("a", {href: "/users/" + pr.user}, 
                 pr.user
               )
             ), 
-            React.createElement("td", {sorttable_customkey: pr.commenters.size}, 
+            React.createElement("td", null, 
               commenters
             ), 
-            React.createElement("td", {sorttable_customkey: pr.lines_changed}, 
+            React.createElement("td", null, 
               React.createElement("span", {className: "lines-added"}, "+", pr.lines_added), 
               React.createElement("span", {className: "lines-deleted"}, "-", pr.lines_deleted)
             ), 
-            React.createElement("td", {sorttable_customkey: pr.is_mergeable}, 
+            React.createElement("td", null, 
               pr.is_mergeable ? React.createElement("i", {className: "glyphicon glyphicon-ok"}) : React.createElement("i", {className: "glyphicon glyphicon-remove"})
             )
           )
@@ -82,31 +112,57 @@ define([
     });
 
     var PRTableView = React.createClass({displayName: 'PRTableView',
+      propTypes: {
+        prs: React.PropTypes.array.isRequired
+      },
+      getInitialState: function() {
+        return {sortCol: '', sortDirection: 'unsorted', sortedPrs: this.props.prs}
+      },
+      sortFunctions:  {
+        'Number': function(pr) { return pr.number; },
+        'JIRAs': function(pr) { return pr.parsed_title.jiras; },
+        'Title': function(pr) { return pr.parsed_title.metadata + pr.parsed_title.title; },
+        'Author': function(pr) { return pr.user.toLowerCase(); },
+        'Commenters': function(pr) { return pr.commenters.length; },
+        'Changes': function(pr) { return pr.lines_changed; },
+        'Merges': function(pr) { return pr.is_mergeable; },
+        'Jenkins': function(pr) { return pr.last_jenkins_outcome; }
+      },
+      onSort: function(colName) {
+        var newSortDirection;
+        if (colName === this.state.sortCol) {
+          if (this.state.sortDirection === 'unsorted' || this.state.sortDirection === 'asc') {
+            newSortDirection = 'desc'
+          } else if (this.state.sortDirection === 'desc') {
+            newSortDirection = 'asc'
+          }
+        } else {
+          newSortDirection = 'desc'
+        }
+        var newSortedPrs = _.sortBy(this.state.sortedPrs, this.sortFunctions[colName]);
+        if (newSortDirection === 'desc') {
+          newSortedPrs.reverse();
+        }
+        this.setState({sortCol: colName, sortDirection: newSortDirection, sortedPrs: newSortedPrs});
+      },
       render: function() {
-        // var hasJenkins = window.userinfo && _.contains(window.userinfo, "jenkins");
-        var tableRows = _.map(this.props.prs, function(pr) {
+        var tableRows = _.map(this.state.sortedPrs, function(pr) {
           return React.createElement(PRTableRow, {key: pr.number, pr: pr})
+        });
+        var outer = this;
+        var tableHeaders = _.map(["Number", "JIRAs", "Title", "Author", "Commenters", "Changes", "Merges",
+          "Jenkins", "Updated"], function(colName) {
+          var sortDirection = colName === outer.state.sortCol ? outer.state.sortDirection : 'unsorted';
+          return React.createElement(PRTableColumnHeader, {onSort: outer.onSort, key: colName, name: colName, sortDirection: sortDirection})
         });
         return (
           React.createElement("table", {className: "table table-condensed"}, 
-            React.createElement("tr", null, 
-              React.createElement("th", {className: "sorttable_numeric"}, "Number"), 
-              React.createElement("th", null, "JIRAs"), 
-              React.createElement("th", null, "Title"), 
-              React.createElement("th", null, "Author"), 
-              React.createElement("th", null, "Commenters"), 
-              React.createElement("th", null, "Changes"), 
-              React.createElement("th", null, "Merges"), 
-              React.createElement("th", null, "Jenkins"), 
-              React.createElement("th", null, "Updated"), 
-              hasJenkins ? React.createElement("th", {className: "sorttable_nosort"}, "Tools") : ''
-            ), 
-            tableRows
+            React.createElement("tbody", null, 
+              React.createElement("tr", null, tableHeaders), 
+              tableRows
+            )
           )
         );
-      },
-      componentDidMount: function() {
-        sorttable.makeSortable(this.getDOMNode());
       }
     });
 
