@@ -16,7 +16,7 @@ define([
              target: "_blank"}, 
             this.props.number
           )
-        )
+        );
       }
     });
 
@@ -26,9 +26,9 @@ define([
         var username = this.props.username;
         var borderClass = '';
         if (comment.said_lgtm) {
-          borderClass = "lgtm"
+          borderClass = "lgtm";
         } else if (comment.asked_to_close) {
-          borderClass = "asked-to-close"
+          borderClass = "asked-to-close";
         }
         return (
           React.createElement("span", {className: borderClass}, 
@@ -37,7 +37,7 @@ define([
                 width: "16", 
                 alt: username})
           )
-        )
+        );
       }
     });
 
@@ -56,11 +56,11 @@ define([
       },
       sortDirectionIndicator: function () {
         if (this.props.sortDirection === 'asc') {
-          return React.createElement("span", null, " ▾")
+          return React.createElement("span", null, " ▾");
         } else if (this.props.sortDirection === 'desc') {
-          return React.createElement("span", null, " ▴")
+          return React.createElement("span", null, " ▴");
         } else {
-          return ''
+          return '';
         }
       },
       onSort: function() {
@@ -75,10 +75,13 @@ define([
       render: function() {
         var pr = this.props.pr;
         var jiraLinks = _.map(pr.parsed_title.jiras, function(number) {
-          return React.createElement(JIRALink, {key: number, number: number})
+          return React.createElement(JIRALink, {key: number, number: number});
         });
         var commenters = _.map(pr.commenters, function(comment) {
-          return React.createElement(CommenterButton, {key: comment.data.date, username: comment.username, comment: comment.data})
+          return (React.createElement(CommenterButton, {
+            key: comment.data.date, 
+            username: comment.username, 
+            comment: comment.data}));
         });
         return (
           React.createElement("tr", null, 
@@ -145,9 +148,9 @@ define([
         var sortDirection;
         if (sortCol === this.state.sortCol) {
           if (this.state.sortDirection === 'unsorted' || this.state.sortDirection === 'asc') {
-            sortDirection = 'desc'
+            sortDirection = 'desc';
           } else if (this.state.sortDirection === 'desc') {
-            sortDirection = 'asc'
+            sortDirection = 'asc';
           }
         } else {
           sortDirection = 'desc'
@@ -159,10 +162,23 @@ define([
           return React.createElement(PRTableRow, {key: pr.number, pr: pr})
         });
         var outer = this;
-        var tableHeaders = _.map(["Number", "JIRAs", "Title", "Author", "Commenters", "Changes", "Merges",
-          "Jenkins", "Updated"], function(colName) {
-          var sortDirection = colName === outer.state.sortCol ? outer.state.sortDirection : 'unsorted';
-          return React.createElement(PRTableColumnHeader, {onSort: outer.onSort, key: colName, name: colName, sortDirection: sortDirection})
+        var tableHeaders = _.map(
+          ["Number",
+            "JIRAs",
+            "Title",
+            "Author",
+            "Commenters",
+            "Changes",
+            "Merges",
+            "Jenkins",
+            "Updated"], function(colName) {
+          var sortDirection =
+              colName === outer.state.sortCol ? outer.state.sortDirection : 'unsorted';
+          return (React.createElement(PRTableColumnHeader, {
+            onSort: outer.onSort, 
+            key: colName, 
+            name: colName, 
+            sortDirection: sortDirection}));
         });
         return (
           React.createElement("table", {className: "table table-condensed"}, 

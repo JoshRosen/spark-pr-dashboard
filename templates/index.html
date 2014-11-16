@@ -17,8 +17,6 @@
     function ($, PRController) {
       $(function() {
         window.prController = new PRController('/search-prs', $("#sub-nav-container")[0], $("#pr-table")[0]);
-        console.log(window.prController);
-        window.prController.refreshPrs();
         window.prController.refreshPrs();
       });
     });

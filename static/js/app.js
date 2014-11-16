@@ -7,11 +7,11 @@ define([
   'jquery-timeago',
   'bootstrap'
 ],
-function ($, marked) {
+function($, marked) {
   "use strict";
 
   // Called when a user clicks the "Test with Jenkins" button:
-  function test_jenkins(number) {
+  function testJenkins(number) {
     return confirm("Are you sure you want to test PR " + number + " with Jenkins?");
   }
 
@@ -21,9 +21,6 @@ function ($, marked) {
     // Gives anchor tags to the tabs, allowing users to bookmark specific views:
     var hash = window.location.hash;
     hash && $('ul.nav a[href="' + hash + '"]').tab('show');
-
-
-
   });
 
 });
