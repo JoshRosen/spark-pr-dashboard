@@ -8,7 +8,7 @@ module.exports = function (grunt) {
         files: [
           {
             expand: true,
-            cwd: 'static/js',
+            cwd: 'static/jsx',
             src: [ '**/*.jsx' ],
             dest: 'static/js',
             ext: '.js'
@@ -18,7 +18,7 @@ module.exports = function (grunt) {
     },
     watch: {
       react: {
-        files: 'static/js/**/*.jsx',
+        files: 'static/jsx/**/*.jsx',
         tasks: ['react']
       }
     }
