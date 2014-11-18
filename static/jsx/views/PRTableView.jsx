@@ -24,19 +24,14 @@ define([
       render: function() {
         var comment = this.props.comment;
         var username = this.props.username;
-        var borderClass = '';
+        var commenterClass = "commenter";
         if (comment.said_lgtm) {
-          borderClass = "lgtm";
+          commenterClass += " lgtm";
         } else if (comment.asked_to_close) {
-          borderClass = "asked-to-close";
+          commenterClass += " asked-to-close";
         }
         return (
-          <span className={borderClass}>
-            <img src={comment.avatar + "&s=16"}
-                height="16"
-                width="16"
-                alt={username}/>
-          </span>
+          <img className={commenterClass} src={comment.avatar + "&s=16"} alt={username}/>
         );
       }
     });

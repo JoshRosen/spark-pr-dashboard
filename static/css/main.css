@@ -14,14 +14,24 @@
     color: #bd2c00;
 }
 
+.commenter {
+    width: 16px;
+    height: 16px;
+
+    float: left;
+    margin: 4px;
+}
+
+[class="commenter"] {
+    margin-right: 1px;
+}
+
 .lgtm {
-    display: inline-block;
-    border: 3px solid #55a532;
+    outline: 3px solid #55a532;
 }
 
 .asked-to-close {
-    display: inline-block;
-    border: 3px solid #bd2c00;
+    outline: 3px solid #bd2c00;
 }
 
 /* To provide some visual feedback that the icons are clickable */
