@@ -155,6 +155,8 @@ define([
           );
         }
 
+        var updatedAt = $.timeago(pr.updated_at + "Z");
+        var updatedCell = React.createElement("abbr", {title: pr.updated_at}, updatedAt);
         return (
           React.createElement("tr", null, 
             React.createElement("td", null, 
@@ -185,6 +187,9 @@ define([
             ), 
             React.createElement("td", null, 
               jenkinsCell
+            ), 
+            React.createElement("td", null, 
+              updatedCell
             )
           )
         );

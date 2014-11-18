@@ -155,6 +155,8 @@ define([
           );
         }
 
+        var updatedAt = $.timeago(pr.updated_at + "Z");
+        var updatedCell = <abbr title={pr.updated_at}>{updatedAt}</abbr>;
         return (
           <tr>
             <td>
@@ -185,6 +187,9 @@ define([
             </td>
             <td>
               {jenkinsCell}
+            </td>
+            <td>
+              {updatedCell}
             </td>
           </tr>
         );
