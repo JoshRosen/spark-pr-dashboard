@@ -90,7 +90,7 @@ define([
       render: function() {
         return (
           <th onClick={this.onSort}>
-            {this.props.name} {this.sortDirectionIndicator()}
+            {this.props.name}{this.sortDirectionIndicator()}
           </th>
         );
       }
