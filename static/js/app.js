@@ -1,3 +1,4 @@
+// jscs:disable
 /**
  * Core entry point for the application
  */
@@ -10,6 +11,7 @@ define([
 function($, marked) {
   "use strict";
 
+  // jscs:enable
   // Called when a user clicks the "Test with Jenkins" button:
   function testJenkins(number) {
     return confirm("Are you sure you want to test PR " + number + " with Jenkins?");

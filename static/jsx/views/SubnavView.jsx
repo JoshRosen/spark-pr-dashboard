@@ -1,11 +1,13 @@
+// jscs:disable
 define([
     'react',
     'jquery',
     'underscore'
   ],
-  function (React, $, _) {
+  function(React, $, _) {
     "use strict";
 
+    // jscs:enable
     var NavEntry = React.createClass({
       propTypes: {
         active: React.PropTypes.bool.isRequired,
@@ -46,7 +48,8 @@ define([
             active={e.key == outer.props.active}/>);
         });
         return (
-          <nav className="sub-nav navbar navbar-default" role="navigation">
+          <nav className="sub-nav navbar navbar-default"
+            role="navigation">
             <div className="container-fluid">
               <ul className="nav navbar-nav">
                 {navElements}
@@ -58,4 +61,5 @@ define([
     });
 
     return SubnavView;
-  });
+  }
+);

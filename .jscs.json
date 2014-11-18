@@ -87,8 +87,6 @@
 
   "disallowMixedSpacesAndTabs": true,
 
-  "disallowTrailingWhitespace": true,
-
   "disallowKeywordsOnNewLine": ["else"],
 
   "requireLineFeedAtFileEnd": true,
@@ -96,8 +94,6 @@
   "maximumLineLength": 100,
 
   "requireCapitalizedConstructors": true,
-
-  "requireCamelCaseOrUpperCaseIdentifiers": true,
 
   "validateJSDoc": {
     "checkParamNames": true,

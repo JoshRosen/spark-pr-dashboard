@@ -1,3 +1,4 @@
+// jscs:disable
 define([
     "jquery",
     "underscore",
@@ -5,7 +6,7 @@ define([
     "views/SubnavView",
     "views/PRTableView"],
   function($, _, React, SubnavView, PRTableView) {
-
+  // jscs:enable
   var Controller = function(prURL, navbarDomContainer, prTableDomContainer) {
     this.selectedComponent = "Docs";
     this.prURL = prURL;

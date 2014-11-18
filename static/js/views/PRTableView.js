@@ -1,19 +1,21 @@
+// jscs:disable
 define([
     'react',
     'jquery',
     'underscore'
   ],
-  function (React, $, _) {
+  function(React, $, _) {
     "use strict";
 
+    // jscs:enable
     // TODO:
     var hasJenkins = window.userinfo && _.contains(window.userinfo, "jenkins");
 
     var JIRALink = React.createClass({displayName: 'JIRALink',
       render: function() {
+        var link = "http://issues.apache.org/jira/browse/SPARK-" + this.props.number;
         return (
-          React.createElement("a", {href: "http://issues.apache.org/jira/browse/SPARK-" + this.props.number, 
-             target: "_blank"}, 
+          React.createElement("a", {href: link, target: "_blank"}, 
             this.props.number
           )
         );
@@ -36,13 +38,16 @@ define([
           commenterClass += " asked-to-close";
         }
 
-        var title = "<a href='" + comment.url + "'>Comment</a> from <a href='/users/" + username + "'>" + username + "</a>";
+        var title = "<a href='" + comment.url + "'>Comment</a> from <a href='/users/" +
+          username + "'>" + username + "</a>";
         var marked = require('marked');
         var content = marked(comment.body);
 
         return (
-          React.createElement("img", {ref: "commenter", tabIndex: "0", className: commenterClass, src: comment.avatar + "&s=16", alt: username, 
-              'data-toggle': "popover", 'data-trigger': "focus", 'data-placement': "left", 'data-html': "true", 'data-title': title, 'data-content': content})
+          React.createElement("img", {ref: "commenter", tabIndex: "0", className: commenterClass, 
+            src: comment.avatar + "&s=16", alt: username, 'data-toggle': "popover", 
+            'data-trigger': "focus", 'data-placement': "left", 'data-html': "true", 
+            'data-title': title, 'data-content': content})
         );
       }
     });
@@ -60,7 +65,7 @@ define([
           sortDirection: 'unsorted'
         };
       },
-      sortDirectionIndicator: function () {
+      sortDirectionIndicator: function() {
         if (this.props.sortDirection === 'asc') {
           return React.createElement("span", null, " ▾");
         } else if (this.props.sortDirection === 'desc') {
@@ -73,7 +78,11 @@ define([
         this.props.onSort(this.props.name);
       },
       render: function() {
-        return React.createElement("th", {onClick: this.onSort}, this.props.name, " ", this.sortDirectionIndicator());
+        return (
+          React.createElement("th", {onClick: this.onSort}, 
+            this.props.name, " ", this.sortDirectionIndicator()
+          )
+        );
       }
     });
 
@@ -83,20 +92,32 @@ define([
         var jiraLinks = _.map(pr.parsed_title.jiras, function(number) {
           return React.createElement(JIRALink, {key: number, number: number});
         });
+
         var commenters = _.map(pr.commenters, function(comment) {
-          return (React.createElement(Commenter, {
-            key: comment.data.date, 
-            username: comment.username, 
-            comment: comment.data}));
+          return (
+            React.createElement(Commenter, {
+              key: comment.data.date, 
+              username: comment.username, 
+              comment: comment.data})
+          );
         });
+
+        var mergeIcon = (pr.is_mergeable ?
+          React.createElement("i", {className: "glyphicon glyphicon-ok"}) :
+          React.createElement("i", {className: "glyphicon glyphicon-remove"}));
+
+        var pullLink = "https://www.github.com/apache/spark/pull/" + pr.number;
+
         return (
           React.createElement("tr", null, 
-            React.createElement("td", null, React.createElement("a", {href: "https://www.github.com/apache/spark/pull/" + pr.number, target: "_blank"}, 
+            React.createElement("td", null, 
+              React.createElement("a", {href: pullLink, target: "_blank"}, 
               pr.number
-            )), 
+              )
+            ), 
             React.createElement("td", null, jiraLinks), 
             React.createElement("td", null, 
-              React.createElement("a", {href: "https://www.github.com/apache/spark/pull/" + pr.number, target: "_blank"}, 
+              React.createElement("a", {href: pullLink, target: "_blank"}, 
                 pr.parsed_title.metadata + pr.parsed_title.title
               )
             ), 
@@ -113,7 +134,7 @@ define([
               React.createElement("span", {className: "lines-deleted"}, "-", pr.lines_deleted)
             ), 
             React.createElement("td", null, 
-              pr.is_mergeable ? React.createElement("i", {className: "glyphicon glyphicon-ok"}) : React.createElement("i", {className: "glyphicon glyphicon-remove"})
+              mergeIcon
             )
           )
         );
@@ -140,7 +161,7 @@ define([
         'Merges': function(pr) { return pr.is_mergeable; },
         'Jenkins': function(pr) { return pr.last_jenkins_outcome; }
       },
-      doSort: function (sortCol, sortDirection, sortedPrs) {
+      doSort: function(sortCol, sortDirection, sortedPrs) {
         // Sort the PRs in this table and update its state
         var newSortedPrs = _.sortBy(sortedPrs, this.sortFunctions[sortCol]);
         if (sortDirection === 'desc') {
@@ -178,13 +199,16 @@ define([
             "Merges",
             "Jenkins",
             "Updated"], function(colName) {
-          var sortDirection =
-              colName === outer.state.sortCol ? outer.state.sortDirection : 'unsorted';
-          return (React.createElement(PRTableColumnHeader, {
-            onSort: outer.onSort, 
-            key: colName, 
-            name: colName, 
-            sortDirection: sortDirection}));
+          var sortDirection = (colName === outer.state.sortCol ?
+            outer.state.sortDirection :
+            'unsorted');
+
+          return (
+            React.createElement(PRTableColumnHeader, {
+              key: colName, 
+              name: colName, 
+              onSort: outer.onSort, 
+              sortDirection: sortDirection}));
         });
         return (
           React.createElement("table", {className: "table table-condensed"}, 
@@ -198,4 +222,5 @@ define([
     });
 
     return PRTableView;
-  });
+  }
+);
