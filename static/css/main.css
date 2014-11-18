@@ -21,6 +21,8 @@
 
     float: left;
     margin: 4px;
+
+    cursor: pointer;
 }
 
 [class="commenter"] {

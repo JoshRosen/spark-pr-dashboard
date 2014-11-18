@@ -20,18 +20,29 @@ define([
       }
     });
 
-    var CommenterButton = React.createClass({displayName: 'CommenterButton',
+    var Commenter = React.createClass({displayName: 'Commenter',
+      componentDidMount: function() {
+        $(this.refs.commenter.getDOMNode()).popover();
+      },
+
       render: function() {
         var comment = this.props.comment;
         var username = this.props.username;
-        var commenterClass = "commenter";
+        var commenterClass = "commenter commenter-icon";
+
         if (comment.said_lgtm) {
           commenterClass += " lgtm";
         } else if (comment.asked_to_close) {
           commenterClass += " asked-to-close";
         }
+
+        var title = "<a href='" + comment.url + "'>Comment</a> from <a href='/users/" + username + "'>" + username + "</a>";
+        var marked = require('marked');
+        var content = marked(comment.body);
+
         return (
-          React.createElement("img", {className: commenterClass, src: comment.avatar + "&s=16", alt: username})
+          React.createElement("img", {ref: "commenter", tabIndex: "0", className: commenterClass, src: comment.avatar + "&s=16", alt: username, 
+              'data-toggle': "popover", 'data-trigger': "focus", 'data-placement': "left", 'data-html': "true", 'data-title': title, 'data-content': content})
         );
       }
     });
@@ -73,7 +84,7 @@ define([
           return React.createElement(JIRALink, {key: number, number: number});
         });
         var commenters = _.map(pr.commenters, function(comment) {
-          return (React.createElement(CommenterButton, {
+          return (React.createElement(Commenter, {
             key: comment.data.date, 
             username: comment.username, 
             comment: comment.data}));
