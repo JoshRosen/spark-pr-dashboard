@@ -16,6 +16,11 @@ module.exports = function (grunt) {
         ]
       }
     },
+
+    jscs: {
+      src: "static/js/**/*.js"
+    },
+
     watch: {
       react: {
         files: 'static/jsx/**/*.jsx',
@@ -24,7 +29,9 @@ module.exports = function (grunt) {
     }
   });
 
+  grunt.loadNpmTasks("grunt-jscs");
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-react');
+
   grunt.registerTask('default', ['react']);
 };
