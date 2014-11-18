@@ -10,6 +10,17 @@ define([
     // jscs:enable
     // TODO:
     var hasJenkins = window.userinfo && _.contains(window.userinfo, "jenkins");
+    var marked = require('marked');
+
+    var jenkinsOutcomes = {
+      Pass: {label: "Passed", iconName: "ok"},
+      Fail: {label: "Failed", iconName: "remove"},
+      Timeout: {label: "Timed out", iconName: "time"},
+      Running: {label: "Running", iconName: "arrow-right"},
+      Verify: {label: "Admin needed", iconName: "comment"},
+      Asked: {label: "Asked to test", iconName: "comment"},
+      Unknown: {label: "Unknown", iconName: "question-sign"}
+    };
 
     var JIRALink = React.createClass({displayName: 'JIRALink',
       render: function() {
@@ -40,7 +51,6 @@ define([
 
         var title = "<a href='" + comment.url + "'>Comment</a> from <a href='/users/" +
           username + "'>" + username + "</a>";
-        var marked = require('marked');
         var content = marked(comment.body);
 
         return (
@@ -87,6 +97,12 @@ define([
     });
 
     var PRTableRow = React.createClass({displayName: 'PRTableRow',
+      componentDidMount: function() {
+        if (this.refs.jenkinsPopover != undefined) {
+          $(this.refs.jenkinsPopover.getDOMNode()).popover();
+        }
+      },
+
       render: function() {
         var pr = this.props.pr;
         var jiraLinks = _.map(pr.parsed_title.jiras, function(number) {
@@ -107,6 +123,37 @@ define([
           React.createElement("i", {className: "glyphicon glyphicon-remove"}));
 
         var pullLink = "https://www.github.com/apache/spark/pull/" + pr.number;
+
+        var jenkinsOutcome = jenkinsOutcomes[pr.last_jenkins_outcome];
+        var iconClass = "glyphicon glyphicon-" + jenkinsOutcome.iconName;
+
+        var jenkinsCell;
+        var lastJenkinsComment = pr.last_jenkins_comment;
+        if (lastJenkinsComment) {
+          var username = lastJenkinsComment.user.login;
+          var title = "<a href='" + lastJenkinsComment.html_url + "'>Comment</a> from " +
+            "<a href='/users/" + username + "'>" + username + "</a>";
+          var content = marked(lastJenkinsComment.body);
+
+          jenkinsCell = (
+            React.createElement("span", {ref: "jenkinsPopover", tabIndex: "0", 
+              'data-toggle': "popover", 'data-trigger': "focus", 
+              'data-placement': "left", 'data-html': "true", 
+              'data-title': title, 'data-content': content}, 
+              React.createElement("i", {className: iconClass}), 
+              React.createElement("span", {className: "jenkins-outcome-link"}, 
+                jenkinsOutcome.label
+              )
+            )
+          );
+        } else {
+          jenkinsCell = (
+            React.createElement("div", null, 
+              React.createElement("i", {className: iconClass}), 
+              jenkinsOutcome.label
+            )
+          );
+        }
 
         return (
           React.createElement("tr", null, 
@@ -135,6 +182,9 @@ define([
             ), 
             React.createElement("td", null, 
               mergeIcon
+            ), 
+            React.createElement("td", null, 
+              jenkinsCell
             )
           )
         );

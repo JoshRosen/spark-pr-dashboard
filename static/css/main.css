@@ -46,6 +46,12 @@
 .jenkins-outcome-link:hover {
     color: #005580;
     text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Prevent selecting of span tag when popover is toggled by click */
+span[data-toggle="popover"]:focus {
+    outline: -webkit-focus-ring-color auto 0;
 }
 
 .sub-nav {

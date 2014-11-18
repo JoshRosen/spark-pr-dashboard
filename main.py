@@ -152,6 +152,7 @@ def search_prs():
             'is_mergeable': pr.is_mergeable,
             'commenters': [{'username': u, 'data': d} for (u, d) in pr.commenters],
             'last_jenkins_outcome': pr.last_jenkins_outcome,
+            'last_jenkins_comment': pr.last_jenkins_comment
             }
         json_dicts.append(d)
     response = Response(json.dumps(json_dicts, indent=2, separators=(',', ': ')),
