@@ -214,7 +214,8 @@ define([
         'Commenters': function(pr) { return pr.commenters.length; },
         'Changes': function(pr) { return pr.lines_changed; },
         'Merges': function(pr) { return pr.is_mergeable; },
-        'Jenkins': function(pr) { return pr.last_jenkins_outcome; }
+        'Jenkins': function(pr) { return pr.last_jenkins_outcome; },
+        'Updated': function(pr) { return pr.updated_at; }
       },
       doSort: function(sortCol, sortDirection, sortedPrs) {
         // Sort the PRs in this table and update its state
