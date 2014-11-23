@@ -5,16 +5,11 @@ define([
     'underscore',
     'views/MainNavigation',
     'views/SubNavigation',
-    'views/PRTableView'
+    'views/PRTableView',
+    'mixins/HistoryMixin'
   ],
-  function(React, $, _) {
+  function(React, $, _, MainNavigation, SubNavigation, PRTableView, HistoryMixin) {
     "use strict";
-
-    var MainNavigation = require('views/MainNavigation');
-    var SubNavigation = require('views/SubNavigation');
-    var PRTableView = require('views/PRTableView');
-    var HistoryMixin = require('mixins/HistoryMixin');
-    var _ = require('underscore');
 
     // jscs:enable
     var Dashboard = React.createClass({

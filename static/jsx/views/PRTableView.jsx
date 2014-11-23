@@ -4,16 +4,14 @@ define([
     'jquery',
     'underscore',
     'marked',
-    'jquery-timeago',
     'bootstrap'
   ],
-  function(React, $, _) {
+  function(React, $, _, marked) {
     "use strict";
 
     // jscs:enable
     // TODO:
     var hasJenkins = window.userinfo && _.contains(window.userinfo, "jenkins");
-    var marked = require('marked');
 
     var jenkinsOutcomes = {
       Pass: {label: "Passed", iconName: "ok"},

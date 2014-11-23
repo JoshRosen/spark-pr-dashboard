@@ -1,13 +1,11 @@
 // jscs:disable
 define([
     'react',
-    'jquery',
     'mixins/HistoryMixin'
   ],
-  function(React, $, _) {
+  function(React, HistoryMixin) {
     "use strict";
 
-    var HistoryMixin = require('mixins/HistoryMixin');
 
     // jscs:enable
     var SubNavigationItem = React.createClass({displayName: 'SubNavigationItem',

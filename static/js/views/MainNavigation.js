@@ -3,7 +3,7 @@ define([
     'react',
     'jquery'
   ],
-  function(React, $, _) {
+  function(React, $) {
     "use strict";
 
     // jscs:enable
