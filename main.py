@@ -134,8 +134,8 @@ def build_response(template, max_age=60, **kwargs):
     return response
 
 
-@app.route('/search-prs')
-def search_prs():
+@app.route('/search-open-prs')
+def search_open_prs():
     prs = Issue.query(Issue.state == "open").order(-Issue.updated_at).fetch()
     json_dicts = []
     for pr in prs:
@@ -159,6 +159,12 @@ def search_prs():
                         mimetype='application/json')
     return response
 
+@app.route('/prs-meta')
+def prs_meta():
+    num_open_prs = int(Issue.query(Issue.state == "open").count())
+    dict = {'openPrsCount': num_open_prs, 'user': g.user}
+    response = Response(json.dumps(dict, indent=2, separators=(',', ': ')), mimetype='application/json')
+    return response
 
 @app.route("/trigger-jenkins/<int:number>", methods=['GET', 'POST'])
 def test_pr(number):

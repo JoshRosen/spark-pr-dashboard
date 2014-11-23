@@ -1,24 +1,7 @@
 {% extends "base.html" %}
-{% set active_page = "index" %}
-{% import "macros.html" as macros %}
-
 
 {% block content %}
-<div id="pr-table">
 
-</div>
-{% endblock %}
+<div id="dashboard"></div>
 
-{% block extrajs %}
-<script type="text/javascript">
-  require([
-      "jquery",
-      "controllers/PRController"],
-    function ($, PRController) {
-      $(function() {
-        window.prController = new PRController('/search-prs', $("#sub-nav-container")[0], $("#pr-table")[0]);
-        window.prController.refreshPrs();
-      });
-    });
-</script>
 {% endblock %}

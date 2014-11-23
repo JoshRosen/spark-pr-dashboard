@@ -6,7 +6,8 @@ define([
   'jquery',
   'marked',
   'jquery-timeago',
-  'bootstrap'
+  'react',
+  'views/Dashboard'
 ],
 function($, marked) {
   "use strict";
@@ -19,10 +20,10 @@ function($, marked) {
 
   // Initialization code to run on page load
   $(function() {
-    // From http://stackoverflow.com/a/12138756
-    // Gives anchor tags to the tabs, allowing users to bookmark specific views:
-    var hash = window.location.hash;
-    hash && $('ul.nav a[href="' + hash + '"]').tab('show');
+    var React = require('react');
+    var Dashboard = require('views/Dashboard');
+
+    React.render(Dashboard(), $('#dashboard')[0]);
   });
 
 });

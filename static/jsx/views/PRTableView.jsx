@@ -2,7 +2,10 @@
 define([
     'react',
     'jquery',
-    'underscore'
+    'underscore',
+    'marked',
+    'jquery-timeago',
+    'bootstrap'
   ],
   function(React, $, _) {
     "use strict";
