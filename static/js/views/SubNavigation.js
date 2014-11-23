@@ -1,17 +1,27 @@
 // jscs:disable
 define([
     'react',
-    'jquery'
+    'jquery',
+    'mixins/HistoryMixin'
   ],
   function(React, $, _) {
     "use strict";
 
+    var HistoryMixin = require('mixins/HistoryMixin');
+
     // jscs:enable
     var SubNavigationItem = React.createClass({displayName: 'SubNavigationItem',
+      mixins: [HistoryMixin],
+      onClick: function(event) {
+        var component = this.props.component;
+        this.pushComponent(component);
+        this.props.onClick(component);
+      },
+
       render: function() {
         return (
           React.createElement("li", {className: this.props.active ? "subnav-active" : ""}, 
-            React.createElement("a", {onClick: this.props.onClick, 'data-component': this.props.component}, 
+            React.createElement("a", {onClick: this.onClick}, 
               this.props.label
             )
           )
@@ -24,8 +34,7 @@ define([
         return {prsCountByGroup: []};
       },
 
-      _onClick: function(event) {
-        var component = $(event.target).attr('data-component');
+      _onClick: function(component) {
         this.props.onClick(component);
       },
 
@@ -33,7 +42,7 @@ define([
         var navigationItems = [],
           prs = this.props.prs;
 
-        prs.sort(function (pr1, pr2) {
+        prs.sort(function(pr1, pr2) {
           return pr2.count - pr1.count;
         });
 

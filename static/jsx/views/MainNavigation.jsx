@@ -12,7 +12,8 @@ define([
         var link = "/users/" + this.props.username;
         return (
           <p className="nav navbar-text">
-            Signed in as <a href={link} className="navbar-link">{this.props.username}</a>
+            Signed in as
+            <a href={link} className="navbar-link">{this.props.username}</a>
           </p>
         );
       }
@@ -55,7 +56,10 @@ define([
       },
 
       render: function() {
-        var countPrsBadge = <span className="badge">{this.state.openPrsCount}</span>;
+        var countPrsBadge = (
+          <span className="badge">
+            {this.state.openPrsCount}
+          </span>);
 
         var githubUser, githubAction;
         if (this.state.user !== null) {
@@ -66,10 +70,13 @@ define([
         }
 
         return (
-          <nav id="main-nav" className="navbar navbar-default" role="navigation">
+          <nav id="main-nav" className="navbar navbar-default"
+            role="navigation">
             <div className="container-fluid">
               <div className="navbar-header">
-                <a className="navbar-brand" href="/">Spark Pull Requests</a>
+                <a className="navbar-brand" href="/">
+                  Spark Pull Requests
+                </a>
               </div>
 
               <ul className="nav navbar-nav">
@@ -81,8 +88,10 @@ define([
               </ul>
               <div className="pull-right">
                 {githubUser}
-                <a href="https://github.com/databricks/spark-pr-dashboard" className="btn btn-success navbar-btn">
-                  <span className="octicon octicon-mark-github"></span> Fork me on GitHub
+                <a href="https://github.com/databricks/spark-pr-dashboard"
+                  className="btn btn-success navbar-btn">
+                  <span className="octicon octicon-mark-github"></span>
+                  Fork me on GitHub
                 </a>
                 {githubAction}
               </div>

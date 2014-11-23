@@ -12,7 +12,8 @@ define([
         var link = "/users/" + this.props.username;
         return (
           React.createElement("p", {className: "nav navbar-text"}, 
-            "Signed in as ", React.createElement("a", {href: link, className: "navbar-link"}, this.props.username)
+            "Signed in as", 
+            React.createElement("a", {href: link, className: "navbar-link"}, this.props.username)
           )
         );
       }
@@ -55,7 +56,10 @@ define([
       },
 
       render: function() {
-        var countPrsBadge = React.createElement("span", {className: "badge"}, this.state.openPrsCount);
+        var countPrsBadge = (
+          React.createElement("span", {className: "badge"}, 
+            this.state.openPrsCount
+          ));
 
         var githubUser, githubAction;
         if (this.state.user !== null) {
@@ -66,10 +70,13 @@ define([
         }
 
         return (
-          React.createElement("nav", {id: "main-nav", className: "navbar navbar-default", role: "navigation"}, 
+          React.createElement("nav", {id: "main-nav", className: "navbar navbar-default", 
+            role: "navigation"}, 
             React.createElement("div", {className: "container-fluid"}, 
               React.createElement("div", {className: "navbar-header"}, 
-                React.createElement("a", {className: "navbar-brand", href: "/"}, "Spark Pull Requests")
+                React.createElement("a", {className: "navbar-brand", href: "/"}, 
+                  "Spark Pull Requests"
+                )
               ), 
 
               React.createElement("ul", {className: "nav navbar-nav"}, 
@@ -81,8 +88,10 @@ define([
               ), 
               React.createElement("div", {className: "pull-right"}, 
                 githubUser, 
-                React.createElement("a", {href: "https://github.com/databricks/spark-pr-dashboard", className: "btn btn-success navbar-btn"}, 
-                  React.createElement("span", {className: "octicon octicon-mark-github"}), " Fork me on GitHub"
+                React.createElement("a", {href: "https://github.com/databricks/spark-pr-dashboard", 
+                  className: "btn btn-success navbar-btn"}, 
+                  React.createElement("span", {className: "octicon octicon-mark-github"}), 
+                  "Fork me on GitHub"
                 ), 
                 githubAction
               )

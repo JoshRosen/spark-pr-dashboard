@@ -114,21 +114,8 @@ def update_issue(number):
 
 #  --------- User-facing pages --------------------------------------------------------------------#
 
-def build_response(template, max_age=60, **kwargs):
-    num_open_prs = int(Issue.query(Issue.state == "open").count())
-    navigation_bar = [
-        # (href, id, label, badge_value)
-        ('/', 'index', 'Open PRs by Component', num_open_prs),
-        ('/all-open-prs', 'all-open-prs', 'All Open PRs', num_open_prs),
-    ]
-    if g.user and "admin" in g.user.roles:
-        navigation_bar.append(('/admin', 'admin', 'Admin', None))
-    default_context = {
-        'navigation_bar': navigation_bar,
-        'user': g.user,
-        'APP_VERSION': VERSION,
-    }
-    rendered = render_template(template, **(dict(default_context.items() + kwargs.items())))
+def build_response(template, max_age=60):
+    rendered = render_template(template)
     response = make_response(rendered)
     response.cache_control.max_age = max_age
     return response
@@ -227,22 +214,9 @@ def admin_panel():
 
 
 @app.route('/')
-def main():
-    issues = Issue.query(Issue.state == "open").order(-Issue.updated_at).fetch()
-    issues_by_component = defaultdict(list)
-    for issue in issues:
-        for component in issue.components:
-            issues_by_component[component].append(issue)
-    # Display the groups in the order listed in Issues._components
-    grouped_issues = [(c[0], issues_by_component[c[0]]) for c in Issue._components]
-    return build_response('index.html', grouped_issues=grouped_issues)
-
-
-@app.route('/all-open-prs')
-def all_open_prs():
-    prs = Issue.query(Issue.state == "open").order(-Issue.updated_at).fetch()
-    return build_response('all_open_prs.html', prs=prs)
-
+@app.route('/<component>')
+def main(component=None):
+    return build_response('index.html')
 
 @app.route("/users/<username>")
 def users(username):
