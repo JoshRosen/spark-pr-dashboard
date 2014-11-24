@@ -1,15 +1,15 @@
 // jscs:disable
 define([
     'react',
-    'mixins/HistoryMixin'
+    'mixins/BookmarkMixin'
   ],
-  function(React, HistoryMixin) {
+  function(React, BookmarkMixin) {
     "use strict";
 
 
     // jscs:enable
     var SubNavigationItem = React.createClass({displayName: 'SubNavigationItem',
-      mixins: [HistoryMixin],
+      mixins: [BookmarkMixin],
       onClick: function(event) {
         var component = this.props.component;
         this.pushComponent(component);

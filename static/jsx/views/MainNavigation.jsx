@@ -81,7 +81,7 @@ define([
 
               <ul className="nav navbar-nav">
                 <li className="active">
-                  <a href="/">
+                  <a href="/open-prs">
                     Open PRs by Component {countPrsBadge}
                   </a>
                 </li>

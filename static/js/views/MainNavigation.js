@@ -81,7 +81,7 @@ define([
 
               React.createElement("ul", {className: "nav navbar-nav"}, 
                 React.createElement("li", {className: "active"}, 
-                  React.createElement("a", {href: "/"}, 
+                  React.createElement("a", {href: "/open-prs"}, 
                     "Open PRs by Component ", countPrsBadge
                   )
                 )

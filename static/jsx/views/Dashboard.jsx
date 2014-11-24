@@ -6,14 +6,14 @@ define([
     'views/MainNavigation',
     'views/SubNavigation',
     'views/PRTableView',
-    'mixins/HistoryMixin'
+    'mixins/BookmarkMixin'
   ],
-  function(React, $, _, MainNavigation, SubNavigation, PRTableView, HistoryMixin) {
+  function(React, $, _, MainNavigation, SubNavigation, PRTableView, BookmarkMixin) {
     "use strict";
 
     // jscs:enable
     var Dashboard = React.createClass({
-      mixins: [HistoryMixin],
+      mixins: [BookmarkMixin],
       getInitialState: function() {
         return {prs: [], active: '', currentPrs: []};
       },
@@ -77,12 +77,11 @@ define([
       },
 
       _checkTabAvailability: function(prsByComponent) {
-        var pathArray = window.location.pathname.split('/');
-        var path = pathArray.pop();
+        var hash = window.location.hash.split('#');
+        var anchor = hash.pop();
 
         for (var component in prsByComponent) {
-          if (this.getPath(component) === path) {
-            this.pushComponent(component);
+          if (this.getAnchor(component) === anchor) {
             return component;
           }
         }

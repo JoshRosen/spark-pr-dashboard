@@ -214,8 +214,8 @@ def admin_panel():
 
 
 @app.route('/')
-@app.route('/<component>')
-def main(component=None):
+@app.route('/open-prs')
+def main():
     return build_response('index.html')
 
 @app.route("/users/<username>")
