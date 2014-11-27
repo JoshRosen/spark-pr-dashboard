@@ -1,14 +1,17 @@
 // jscs:disable
 define([
     'react',
+    'react-mini-router',
     'jquery',
     'underscore',
     'marked',
-    'bootstrap'
+    'bootstrap',
+    'jquery-timeago'
   ],
-  function(React, $, _, marked) {
+  function(React, Router, $, _, marked) {
     "use strict";
 
+    var navigate = Router.navigate;
     // jscs:enable
     // TODO:
     var hasJenkins = window.userinfo && _.contains(window.userinfo, "jenkins");
@@ -104,6 +107,14 @@ define([
         }
       },
 
+      onClickNav: function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        var url = $(event.target).attr('href');
+        navigate(url);
+      },
+
       render: function() {
         var pr = this.props.pr;
         var jiraLinks = _.map(pr.parsed_title.jiras, function(number) {
@@ -172,7 +183,7 @@ define([
               </a>
             </td>
             <td>
-              <a href={"/users/" + pr.user}>
+              <a href={"/users/" + pr.user} onClick={this.onClickNav}>
                 {pr.user}
               </a>
             </td>

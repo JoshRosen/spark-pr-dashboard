@@ -4,12 +4,10 @@
  */
 define([
   'jquery',
-  'marked',
-  'jquery-timeago',
   'react',
-  'views/Dashboard'
+  'views/AppManager'
 ],
-function($, marked) {
+function($, React, AppManager) {
   "use strict";
 
   // jscs:enable
@@ -20,10 +18,7 @@ function($, marked) {
 
   // Initialization code to run on page load
   $(function() {
-    var React = require('react');
-    var Dashboard = require('views/Dashboard');
-
-    React.render(Dashboard(), $('#dashboard')[0]);
+    React.render(AppManager({history: true}), $('#app-manager')[0]);
   });
 
 });

@@ -215,13 +215,7 @@ def admin_panel():
 
 @app.route('/')
 @app.route('/open-prs')
-def main():
+@app.route('/users')
+@app.route('/users/<username>')
+def main(username=None):
     return build_response('index.html')
-
-@app.route("/users/<username>")
-def users(username):
-    prs = Issue.query(Issue.state == "open").order(-Issue.updated_at).fetch()
-    prs_authored = [p for p in prs if p.user == username]
-    prs_commented_on = [p for p in prs if username in dict(p.commenters) and p.user != username]
-    return build_response('user.html', username=username, prs_authored=prs_authored,
-                          prs_commented_on=prs_commented_on)

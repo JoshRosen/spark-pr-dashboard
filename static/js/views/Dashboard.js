@@ -3,36 +3,33 @@ define([
     'react',
     'jquery',
     'underscore',
-    'views/MainNavigation',
     'views/SubNavigation',
     'views/PRTableView',
-    'mixins/BookmarkMixin'
+    'mixins/UrlMixin'
   ],
-  function(React, $, _, MainNavigation, SubNavigation, PRTableView, BookmarkMixin) {
+  function(React, $, _, SubNavigation, PRTableView, UrlMixin) {
     "use strict";
 
     // jscs:enable
     var Dashboard = React.createClass({displayName: 'Dashboard',
-      mixins: [BookmarkMixin],
+      mixins: [UrlMixin],
       getInitialState: function() {
-        return {prs: [], active: '', currentPrs: []};
+        return {prs: [], activeTab: '', currentPrs: []};
       },
 
       componentDidMount: function() {
-        var _this = this;
+        if (this.props.prs.length > 0) {
+          this._prepareData(this.props.prs);
+        }
+      },
 
-        $.ajax({
-          url: '/search-open-prs',
-          dataType: 'json',
-          success: function(data) {
-            _this._prepareData(data);
-          }
-        });
+      componentWillReceiveProps: function(nextProps) {
+        this._prepareData(nextProps.prs);
       },
 
       componentDidUpdate: function(prevProps, prevState) {
-        if (prevState.active !== this.state.active) {
-          this._filterPrsByComponent(this.state.active);
+        if (prevState.activeTab !== this.state.activeTab) {
+          this._filterPrsByComponent(this.state.activeTab);
         }
       },
 
@@ -47,7 +44,7 @@ define([
           }
         }
 
-        this.setState({active: component, currentPrs: neededPrs});
+        this.setState({activeTab: component, currentPrs: neededPrs});
       },
 
       _prepareData: function(prs) {
@@ -73,7 +70,7 @@ define([
 
         var tab = this._checkTabAvailability(prsByComponent);
 
-        this.setState({prs: result, active: tab ? tab : mainTab});
+        this.setState({prs: result, activeTab: tab ? tab : mainTab});
       },
 
       _checkTabAvailability: function(prsByComponent) {
@@ -93,7 +90,7 @@ define([
           subNavigation = (
             React.createElement(SubNavigation, {
               prs: this.state.prs, 
-              active: this.state.active, 
+              active: this.state.activeTab, 
               onClick: this._filterPrsByComponent}));
           mainView = (
             React.createElement("div", {className: "container-fluid"}, 
@@ -103,7 +100,6 @@ define([
 
         return (
           React.createElement("div", null, 
-            React.createElement(MainNavigation, null), 
             subNavigation, 
             mainView
           )

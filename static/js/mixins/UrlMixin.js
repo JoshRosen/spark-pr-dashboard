@@ -1,21 +1,23 @@
 // jscs:disable
-define([],
-  function() {
+define([
+    'underscore'
+  ],
+  function(_) {
     "use strict";
 
     // jscs:enable
-    var BookmarkMixin = {
+    var UrlMixin = {
       getAnchor: function(component) {
         //remove whitespaces and convert to lower case
         return component.replace(/ /g,'').toLowerCase();
       },
 
-      pushComponent: function(component) {
+      pushAnchor: function(component) {
         var anchor = this.getAnchor(component);
         window.location.hash = anchor;
       }
     };
 
-    return BookmarkMixin;
+    return UrlMixin;
   }
 );
