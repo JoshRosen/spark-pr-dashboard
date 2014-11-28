@@ -107,14 +107,6 @@ define([
         }
       },
 
-      onClickNav: function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        var url = $(event.target).attr('href');
-        navigate(url);
-      },
-
       render: function() {
         var pr = this.props.pr;
         var jiraLinks = _.map(pr.parsed_title.jiras, function(number) {
@@ -183,7 +175,7 @@ define([
               </a>
             </td>
             <td>
-              <a href={"/users/" + pr.user} onClick={this.onClickNav}>
+              <a href={"/users/" + pr.user}>
                 {pr.user}
               </a>
             </td>
@@ -214,6 +206,9 @@ define([
       },
       getInitialState: function() {
         return {sortCol: '', sortDirection: 'unsorted'}
+      },
+      componentWillMount: function() {
+        this.doSort(this.state.sortCol, this.state.sortDirection, this.props.prs);
       },
       componentWillReceiveProps: function(newProps) {
         this.doSort(this.state.sortCol, this.state.sortDirection, newProps.prs);

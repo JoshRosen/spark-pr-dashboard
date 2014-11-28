@@ -20,6 +20,16 @@ define([
         }
       },
 
+      componentDidUpdate: function(prevProps, prevState) {
+        if (prevProps.username !== this.props.username && this.props.username !== "") {
+          this._prepareData(this.props.prs);
+        }
+      },
+
+      componentWillReceiveProps: function(nextProps) {
+        this.setState({username: nextProps.username});
+      },
+
       _prepareData: function(prs) {
         var username = this.state.username;
         var prsAuthored = [], prsCommentedOn = [];

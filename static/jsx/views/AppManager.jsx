@@ -114,14 +114,6 @@ define([
         });
       },
 
-      onClickNav: function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        var url = $(event.target).attr('href');
-        navigate(url);
-      },
-
       render: function() {
         var countPrsBadge = (
           <span className="badge">
@@ -138,7 +130,7 @@ define([
 
                 <ul className="nav navbar-nav">
                   <li className="active">
-                    <a href="/open-prs" onClick={this.onClickNav}>
+                    <a href="/open-prs">
                       Open PRs by Component {countPrsBadge}
                     </a>
                   </li>

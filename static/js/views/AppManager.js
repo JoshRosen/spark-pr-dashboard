@@ -114,14 +114,6 @@ define([
         });
       },
 
-      onClickNav: function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        var url = $(event.target).attr('href');
-        navigate(url);
-      },
-
       render: function() {
         var countPrsBadge = (
           React.createElement("span", {className: "badge"}, 
@@ -138,7 +130,7 @@ define([
 
                 React.createElement("ul", {className: "nav navbar-nav"}, 
                   React.createElement("li", {className: "active"}, 
-                    React.createElement("a", {href: "/open-prs", onClick: this.onClickNav}, 
+                    React.createElement("a", {href: "/open-prs"}, 
                       "Open PRs by Component ", countPrsBadge
                     )
                   )
