@@ -18,7 +18,7 @@ module.exports = function (grunt) {
     },
 
     jscs: {
-      src: "static/js/**/*.js"
+      src: ["static/js/*.js", "static/js/mixins/*.js", "static/js/views/*.js"]
     },
 
     watch: {
