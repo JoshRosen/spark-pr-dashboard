@@ -11,27 +11,23 @@ define([
     // jscs:enable
     var UserDashboard = React.createClass({
       getInitialState: function() {
-        return {username: this.props.username, prsAuthored: [], prsCommentedOn: []};
+        return {prsAuthored: [], prsCommentedOn: []};
       },
 
-      componentDidMount: function() {
-        if (this.state.username !== '') {
-          this._prepareData(this.props.prs);
-        }
-      },
-
-      componentDidUpdate: function(prevProps, prevState) {
-        if (prevProps.username !== this.props.username && this.props.username !== "") {
+      componentWillMount: function() {
+        if (this.props.username !== '') {
           this._prepareData(this.props.prs);
         }
       },
 
       componentWillReceiveProps: function(nextProps) {
-        this.setState({username: nextProps.username});
+        if (nextProps.username !== '') {
+          this._prepareData(nextProps.prs);
+        }
       },
 
       _prepareData: function(prs) {
-        var username = this.state.username;
+        var username = this.props.username;
         var prsAuthored = [], prsCommentedOn = [];
         for (var i = 0; i < prs.length; i++) {
           if (prs[i].user === username) {
@@ -55,7 +51,7 @@ define([
         if (this.state.prsAuthored.length > 0) {
           viewAuthored = (
             <div>
-              <h3>PRs authored by {this.state.username}</h3>
+              <h3>PRs authored by {this.props.username}</h3>
               <PRTableView prs={this.state.prsAuthored}/>
             </div>
           );
@@ -64,7 +60,7 @@ define([
         if (this.state.prsCommentedOn.length > 0) {
           viewCommentedOn = (
             <div>
-              <h3>PRs commented on by {this.state.username}</h3>
+              <h3>PRs commented on by {this.props.username}</h3>
               <PRTableView prs={this.state.prsCommentedOn}/>
             </div>
           );

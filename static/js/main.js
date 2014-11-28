@@ -1,6 +1,6 @@
 // jscs:disable
 require.config({
-  baseUrl: "static/js/",
+  baseUrl: "/static/js/",
   paths: {
     "jquery": "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min",
     "underscore": "//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min",
