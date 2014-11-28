@@ -16,18 +16,17 @@ define([
 
       componentWillMount: function() {
         if (this.props.username !== '') {
-          this._prepareData(this.props.prs);
+          this._prepareData(this.props.prs, this.props.username);
         }
       },
 
       componentWillReceiveProps: function(nextProps) {
         if (nextProps.username !== '') {
-          this._prepareData(nextProps.prs);
+          this._prepareData(nextProps.prs, nextProps.username);
         }
       },
 
-      _prepareData: function(prs) {
-        var username = this.props.username;
+      _prepareData: function(prs, username) {
         var prsAuthored = [], prsCommentedOn = [];
         for (var i = 0; i < prs.length; i++) {
           if (prs[i].user === username) {
