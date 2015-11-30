@@ -12,7 +12,8 @@ from dateutil import tz
 
 from sparkprs import app, db
 from sparkprs.models import JIRAIssue, PullRequest, IssueComment, ReviewComment, User, KVS
-from sparkprs.github_api import raw_github_request, paginated_github_request, PULLS_BASE, ISSUES_BASE
+from sparkprs.github_api import raw_github_request, paginated_github_request, get_pulls_base, \
+    get_issues_base
 from sparkprs.jira_api import link_issue_to_pr
 
 
@@ -40,7 +41,7 @@ def update_github_prs():
             if link.rel == 'next':
                 fetch_and_process(link.href)
     last_update_time = KVS.get("issues_since")
-    url = ISSUES_BASE + "?sort=updated&state=all&per_page=100"
+    url = get_issues_base() + "?sort=updated&state=all&per_page=100"
     if last_update_time:
         url += "&since=%s" % last_update_time
     fetch_and_process(url)
@@ -52,7 +53,7 @@ def update_github_prs():
 def update_pr(pr_number):
     logging.debug("Updating pull request %i" % pr_number)
     pr = PullRequest.query.get(pr_number) or PullRequest(number=pr_number)
-    issue_response = raw_github_request(PULLS_BASE + '/%i' % pr_number,
+    issue_response = raw_github_request(get_pulls_base() + '/%i' % pr_number,
                                         oauth_token=oauth_token, etag=pr.pr_json_etag)
     if issue_response is None:
         logging.debug("PR %i hasn't changed since last visit; skipping" % pr_number)
@@ -86,7 +87,7 @@ def update_pr(pr_number):
 @tasks.route("/github/update-pr-comments/<int:pr_number>", methods=['GET', 'POST'])
 def update_pr_comments(pr_number):
     pr = PullRequest.query.get(pr_number)
-    comments_response = paginated_github_request(ISSUES_BASE + '/%i/comments' % pr_number,
+    comments_response = paginated_github_request(get_issues_base() + '/%i/comments' % pr_number,
                                                  oauth_token=oauth_token,
                                                  etag=pr.pr_comments_etag)
     if comments_response is None:
@@ -116,7 +117,7 @@ def update_pr_comments(pr_number):
 @tasks.route("/github/update-pr-review-comments/<int:pr_number>", methods=['GET', 'POST'])
 def update_pr_review_comments(pr_number):
     pr = PullRequest.query.get(pr_number)
-    pr_comments_response = paginated_github_request(PULLS_BASE + '/%i/comments' % pr_number,
+    pr_comments_response = paginated_github_request(get_pulls_base() + '/%i/comments' % pr_number,
                                                     oauth_token=oauth_token,
                                                     etag=pr.pr_review_comments_etag)
     if pr_comments_response is None:
@@ -146,7 +147,7 @@ def update_pr_review_comments(pr_number):
 @tasks.route("/github/update-pr-files/<int:pr_number>", methods=['GET', 'POST'])
 def update_pr_files(pr_number):
     pr = PullRequest.query.get(pr_number)
-    files_response = paginated_github_request(PULLS_BASE + "/%i/files" % pr_number,
+    files_response = paginated_github_request(get_pulls_base() + "/%i/files" % pr_number,
                                               oauth_token=oauth_token, etag=pr.pr_files_json_etag)
     if files_response is None:
         return "Files for PR %i are up-to-date" % pr_number

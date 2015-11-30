@@ -3,11 +3,10 @@ from collections import defaultdict
 import re
 
 from flask import Blueprint, Response
-from sqlalchemy.orm import joinedload
 
 from sparkprs import db
 from sparkprs.models import PullRequest
-from sparkprs.utils import is_jenkins_command, contains_jenkins_command
+from sparkprs.utils import is_jenkins_command, compute_last_jenkins_outcome
 
 
 prs = Blueprint('prs', __name__)
@@ -44,127 +43,51 @@ def compute_commenters(pr):
     return sorted(res.items(), key=lambda x: x[1]['date'], reverse=True)
 
 
-def compute_last_jenkins_outcome(pr):
-    status = "Unknown"
-    jenkins_comment = None
-    for comment in sorted(pr.issue_comments, key=lambda x: x.creation_time):
-        if contains_jenkins_command(comment.body):
-            status = "Asked"
-            jenkins_comment = comment
-        elif comment.author.github_username in ("SparkQA", "AmplabJenkins"):
-            body = comment.body.lower()
-            jenkins_comment = comment
-            if "pass" in body:
-                status = "Pass"
-            elif "fail" in body:
-                status = "Fail"
-            elif "started" in body:
-                status = "Running"
-            elif "can one of the admins verify this patch?" in body:
-                status = "Verify"
-            elif "timed out" in body:
-                status = "Timeout"
-            else:
-                status = "Unknown"  # So we display "Unknown" instead of an out-of-date status
-    return status, jenkins_comment
-
 @prs.route('/search-open-prs')
-#@cache.cached(timeout=60) #TODO: re-enable caching before going live
+# @cache.cached(timeout=60) #TODO: re-enable caching before going live
 def search_open_prs():
     json_dicts = []
     pull_requests = db.session.query(PullRequest).\
         filter(PullRequest.state == "open"). \
         order_by(PullRequest.update_time.desc()). \
         yield_per(1)
-    #options(joinedload(PullRequest.issue_comments)). \
+    # options(joinedload(PullRequest.issue_comments)). \
 
     for pr in pull_requests:
         print pr.number
-        #jenkins_outcome, jenkins_comment = compute_last_jenkins_outcome(pr)
+        jenkins_outcome, jenkins_comment = compute_last_jenkins_outcome(pr)
         last_jenkins_comment_dict = None
-        #if jenkins_comment:
-         #   last_jenkins_comment_dict = {
-            #    'body': jenkins_comment.body,
-               # 'user': {'login': jenkins_comment.author.github_username},
-                #'html_url': jenkins_comment.url,
-          #  }
+        if jenkins_comment:
+            last_jenkins_comment_dict = {
+                'body': jenkins_comment.body,
+                'user': {'login': jenkins_comment.author.github_username},
+                'html_url': jenkins_comment.url,
+            }
         d = {
             'parsed_title': pr.parsed_title,
             'number': pr.number,
             'updated_at': str(pr.update_time),
             'user': pr.author.github_username,
             'state': pr.state,
-            #'components': pr.components,
-            'lines_added': pr.lines_added,
-            'lines_deleted': pr.lines_deleted,
-            'lines_changed': pr.lines_changed,
-            'is_mergeable': pr.is_mergeable,
-            #'commenters': [{'username': u, 'data': d} for (u, d) in []], #compute_commenters(pr)],
-            #'last_jenkins_outcome': jenkins_outcome,
-            #'last_jenkins_comment': last_jenkins_comment_dict,
-            }
-        # Use the first JIRA's information to populate the "Priority" and "Issue Type" columns:
-        jiras = []  # pr.jira_issues
-        if jiras:
-            first_jira = pr.jira_issues[0]
-            if first_jira:
-                d['jira_priority_name'] = first_jira.priority_name
-                d['jira_priority_icon_url'] = first_jira.priority_icon_url
-                d['jira_issuetype_name'] = first_jira.issuetype_name
-                d['jira_issuetype_icon_url'] = first_jira.issuetype_icon_url
-        json_dicts.append(d)
-    response = Response(json.dumps(json_dicts), mimetype='application/json')
-    return response
-
-from flask import Blueprint
-from flask import Response
-
-from sparkprs import cache, app
-from sparkprs.models import Issue, JIRAIssue
-
-
-prs = Blueprint('prs', __name__)
-
-
-@prs.route('/search-open-prs')
-@cache.cached(timeout=60)
-def search_open_prs():
-    prs = Issue.query(Issue.state == "open").order(-Issue.updated_at).fetch()
-    json_dicts = []
-    for pr in prs:
-        last_jenkins_comment_dict = None
-        if pr.last_jenkins_comment:
-            last_jenkins_comment_dict = {
-                'body': pr.last_jenkins_comment['body'],
-                'user': {'login': pr.last_jenkins_comment['user']['login']},
-                'html_url': pr.last_jenkins_comment['html_url'],
-                'date': [pr.last_jenkins_comment['created_at']],
-            }
-        d = {
-            'parsed_title': pr.parsed_title,
-            'number': pr.number,
-            'updated_at': str(pr.updated_at),
-            'user': pr.user,
-            'state': pr.state,
             'components': pr.components,
             'lines_added': pr.lines_added,
             'lines_deleted': pr.lines_deleted,
             'lines_changed': pr.lines_changed,
             'is_mergeable': pr.is_mergeable,
-            'commenters': [{'username': u, 'data': d} for (u, d) in pr.commenters],
-            'last_jenkins_outcome': pr.last_jenkins_outcome,
+            'commenters': [{'username': u, 'data': d} for (u, d) in compute_commenters(pr)],
+            'last_jenkins_outcome': jenkins_outcome,
             'last_jenkins_comment': last_jenkins_comment_dict,
         }
         # Use the first JIRA's information to populate the "Priority" and "Issue Type" columns:
-        jiras = pr.parsed_title["jiras"]
-        if jiras:
-            first_jira = JIRAIssue.get_by_id("%s-%i" % (app.config['JIRA_PROJECT'], jiras[0]))
-            if first_jira:
-                d['jira_priority_name'] = first_jira.priority_name
-                d['jira_priority_icon_url'] = first_jira.priority_icon_url
-                d['jira_issuetype_name'] = first_jira.issuetype_name
-                d['jira_issuetype_icon_url'] = first_jira.issuetype_icon_url
-                d['jira_shepherd_display_name'] = first_jira.shepherd_display_name
+        # jiras = pr.jira_issues
+        # if jiras:
+        #     first_jira = pr.jira_issues[0]
+        #     if first_jira:
+        #         d['jira_priority_name'] = first_jira.priority_name
+        #         d['jira_priority_icon_url'] = first_jira.priority_icon_url
+        #         d['jira_issuetype_name'] = first_jira.issuetype_name
+        #         d['jira_issuetype_icon_url'] = first_jira.issuetype_icon_url
+        #         d['jira_shepherd_display_name'] = first_jira.shepherd_display_name
         json_dicts.append(d)
     response = Response(json.dumps(json_dicts), mimetype='application/json')
     return response

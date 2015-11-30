@@ -1,22 +1,10 @@
-import google.appengine.ext.ndb as ndb
-from google.appengine.api import urlfetch
-from collections import defaultdict
-from dateutil.parser import parse as parse_datetime
-from dateutil import tz
-from github_api import raw_github_request, paginated_github_request, PULLS_BASE, ISSUES_BASE
-from datetime import datetime
-import google.appengine.ext.ndb as ndb
-from google.appengine.api import urlfetch
-from collections import defaultdict
 import json
 import re
-from sparkprs import app
-from sparkprs.utils import parse_pr_title, is_jenkins_command, contains_jenkins_command
-from sparkprs.jira_api import link_issue_to_pr
-from google.appengine.ext import ndb as ndb
+from datetime import datetime
 
-from sqlalchemy.types import TypeDecorator
+from google.appengine.ext import ndb as ndb
 from sqlalchemy.dialects.mysql import LONGTEXT
+from sqlalchemy.types import TypeDecorator
 
 from sparkprs import db
 from sparkprs.utils import parse_pr_title
@@ -38,8 +26,6 @@ class JSONType(TypeDecorator):
         if value is not None:
             return json.loads(value)
 
-from sparkprs import app
-from sparkprs.utils import parse_pr_title, is_jenkins_command, compute_last_jenkins_outcome
 
 prs_jiras = db.Table(
     "prs_jiras",
@@ -88,12 +74,6 @@ class User(db.Model):
             session.flush()
         return user
 
-    # Raw JSON data
-    pr_json = ndb.JsonProperty()
-    pr_comments_json = ndb.JsonProperty(compressed=True)
-    files_json = ndb.JsonProperty(compressed=True)
-    # ETags for limiting our GitHub requests
-    etag = ndb.StringProperty()
 
 class JIRAIssue(db.Model):
 

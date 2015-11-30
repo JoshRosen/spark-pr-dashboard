@@ -6,7 +6,7 @@ from flask import Blueprint
 from google.appengine.api import urlfetch
 
 from sparkprs import app
-from sparkprs.models import Issue
+from sparkprs.models import PullRequest
 
 
 jenkins = Blueprint('jenkins', __name__)
@@ -19,7 +19,7 @@ def test_pr(number):
     """
     if not (g.user and g.user.has_capability("jenkins")):
         return abort(403)
-    pr = Issue.get_or_create(number)
+    pr = PullRequest.query.get(number)
     commit = pr.pr_json["head"]["sha"]
     target_branch = pr.pr_json["base"]["ref"]
     # The parameter names here were chosen to match the ones used by Jenkins' GitHub pull request

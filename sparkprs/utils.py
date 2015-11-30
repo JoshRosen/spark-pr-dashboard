@@ -97,7 +97,7 @@ def parse_pr_title(pr_title):
     }
 
 
-def compute_last_jenkins_outcome(comments_json):
+def compute_last_jenkins_outcome(pr):
     # Because the Jenkins GHPRB plugin isn't fully configurable on a per-project basis, each PR
     # ends up receiving comments from multiple bots on build failures. The SparkQA bot posts the
     # detailed build failure messages that mention the specific tests that failed; this bot is
@@ -113,9 +113,9 @@ def compute_last_jenkins_outcome(comments_json):
     status = "Unknown"
     jenkins_comment = None
     prev_author = None
-    for comment in (comments_json or []):
-        author = comment['user']['login']
-        body = comment['body'].lower()
+    for comment in sorted(pr.issue_comments, key=lambda x: x.creation_time):
+        author = comment.author.github_username
+        body = comment.body.lower()
         if contains_jenkins_command(body):
             status = "Asked"
             jenkins_comment = comment
