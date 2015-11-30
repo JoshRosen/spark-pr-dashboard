@@ -110,6 +110,12 @@ class JIRAIssue(db.Model):
     def issuetype_icon_url(self):
         return self.issue_json["fields"]['issuetype']['iconUrl']
 
+    @property
+    def shepherd_display_name(self):
+        shepherd = self.issue_json["fields"]['customfield_12311620']
+        if shepherd:
+            return shepherd['displayName']
+
     @classmethod
     def get_or_create(cls, issue_id):
         return cls.query.get(issue_id) or JIRAIssue(issue_id=issue_id)
@@ -260,12 +266,6 @@ class KVS(ndb.Model):
         res = KVS.get_by_id(key, use_cache=False, use_memcache=False)
         if res is not None:
             return res.value
-
-    @property
-    def shepherd_display_name(self):
-        shepherd = self.issue_json["fields"]['customfield_12311620']
-        if shepherd:
-            return shepherd['displayName']
 
     @classmethod
     def put(cls, key_str, value):

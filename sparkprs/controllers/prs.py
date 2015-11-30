@@ -62,6 +62,7 @@ def search_open_prs():
                 'body': jenkins_comment.body,
                 'user': {'login': jenkins_comment.author.github_username},
                 'html_url': jenkins_comment.url,
+                'date': str(jenkins_comment.creation_time),
             }
         d = {
             'parsed_title': pr.parsed_title,
@@ -79,15 +80,15 @@ def search_open_prs():
             'last_jenkins_comment': last_jenkins_comment_dict,
         }
         # Use the first JIRA's information to populate the "Priority" and "Issue Type" columns:
-        # jiras = pr.jira_issues
-        # if jiras:
-        #     first_jira = pr.jira_issues[0]
-        #     if first_jira:
-        #         d['jira_priority_name'] = first_jira.priority_name
-        #         d['jira_priority_icon_url'] = first_jira.priority_icon_url
-        #         d['jira_issuetype_name'] = first_jira.issuetype_name
-        #         d['jira_issuetype_icon_url'] = first_jira.issuetype_icon_url
-        #         d['jira_shepherd_display_name'] = first_jira.shepherd_display_name
+        jiras = pr.jira_issues
+        if jiras:
+            first_jira = pr.jira_issues[0]
+            if first_jira:
+                d['jira_priority_name'] = first_jira.priority_name
+                d['jira_priority_icon_url'] = first_jira.priority_icon_url
+                d['jira_issuetype_name'] = first_jira.issuetype_name
+                d['jira_issuetype_icon_url'] = first_jira.issuetype_icon_url
+                d['jira_shepherd_display_name'] = first_jira.shepherd_display_name
         json_dicts.append(d)
     response = Response(json.dumps(json_dicts), mimetype='application/json')
     return response

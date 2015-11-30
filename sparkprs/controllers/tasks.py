@@ -113,7 +113,6 @@ def update_pr_comments(pr_number):
     return "Done updating comments for PR %i" % pr_number
 
 
-
 @tasks.route("/github/update-pr-review-comments/<int:pr_number>", methods=['GET', 'POST'])
 def update_pr_review_comments(pr_number):
     pr = PullRequest.query.get(pr_number)
@@ -184,7 +183,10 @@ def update_all_jiras_for_open_prs():
     Used to bulk-load information from JIRAs for all open PRs.  Useful when upgrading
     from an earlier version of spark-prs.
     """
-    prs = Issue.query(Issue.state == "open").order(-Issue.updated_at).fetch()
+    prs = db.session.query(PullRequest). \
+        filter(PullRequest.state == "open"). \
+        order_by(PullRequest.update_time.desc()). \
+        all()
     jira_issues = set(itertools.chain.from_iterable(pr.parsed_title['jiras'] for pr in prs))
     for issue in jira_issues:
         taskqueue.add(url=url_for('.update_jira_issue', issue_id="SPARK-%i" % issue),
