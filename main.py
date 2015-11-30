@@ -7,7 +7,6 @@ from sparkprs.controllers.login import login
 from sparkprs.controllers.jenkins import jenkins
 from sparkprs.controllers.prs import prs
 
-
 app.register_blueprint(login)
 app.register_blueprint(jenkins)
 app.register_blueprint(prs)

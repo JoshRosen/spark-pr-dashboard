@@ -7,7 +7,7 @@ from flask import redirect, session, url_for, g, request, Response
 from google.appengine.api import urlfetch, users
 from flask import Blueprint
 
-from sparkprs import app, db
+from sparkprs import app
 from sparkprs.models import User
 from sparkprs.github_api import github_request, BASE_AUTH_URL
 
@@ -15,11 +15,11 @@ from sparkprs.github_api import github_request, BASE_AUTH_URL
 login = Blueprint('login', __name__)
 
 
-@login.before_app_request
+@app.before_request
 def before_request():
     g.user = None
-    if 'github_username' in session:
-        g.user = User.query.filter_by(github_username=session['github_username']).first()
+    if 'github_login' in session:
+        g.user = User.query(User.github_login == session['github_login']).get()
 
 
 @login.route('/github-callback')
@@ -42,20 +42,20 @@ def github_authorized_callback():
         raise Exception("Got %i response from GitHub:\n%s" %
                         (response.status_code, response.content))
     data = urlparse.parse_qs(response.content)
-    github_access_token = data.get('access_token', None)
-    if github_access_token is None:
+    access_token = data.get('access_token', None)
+    if access_token is None:
         return redirect(next_url)
-    github_access_token = github_access_token[0].decode('ascii')
-    github_json = json.loads(github_request("user", oauth_token=github_access_token).content)
-    github_username = github_json['login']
-    user = User.get_or_create(github_username, db.session)
-    user.github_json = github_json
-    user.github_access_token = github_access_token
-    user.avatar_url = github_json['avatar_url']
-    db.session.add(user)
-    db.session.commit()
-    session['github_username'] = github_username
-    return redirect(next_url)
+    access_token = access_token[0].decode('ascii')
+    user_json = json.loads(github_request("user", oauth_token=access_token).content)
+    user = User.query(User.github_login == user_json['login']).get()
+    if user is None:
+        user = User(github_login=user_json['login'])
+    user.github_user_json = user_json
+    user.github_access_token = access_token
+    user.put()
+
+    session['github_login'] = user.github_login
+    return redirect(url_for('main'))
 
 
 @login.route('/login')
@@ -63,14 +63,14 @@ def login_handler():
     query = {
         'client_id': app.config['GITHUB_CLIENT_ID'],
         'redirect_uri': app.config['GITHUB_CALLBACK_URL'],
-        }
+    }
     auth_url = BASE_AUTH_URL + 'authorize?' + urllib.urlencode(query)
     return redirect(auth_url)
 
 
 @login.route('/logout')
 def logout():
-    session.pop('github_username', None)
+    session.pop('github_login', None)
     return redirect(url_for('main'))
 
 
@@ -91,9 +91,9 @@ def user_info():
     """
     if g.user:
         user_dict = {
-            'github_login': g.user.github_username,
-            'roles': [], # TODO: fix roles support  # g.user.roles,
-            }
+            'github_login': g.user.github_login,
+            'roles': g.user.roles,
+        }
     else:
         user_dict = None
     return Response(json.dumps(user_dict, indent=2, separators=(',', ': ')),

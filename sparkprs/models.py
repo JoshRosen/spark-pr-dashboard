@@ -1,6 +1,18 @@
+import google.appengine.ext.ndb as ndb
+from google.appengine.api import urlfetch
+from collections import defaultdict
+from dateutil.parser import parse as parse_datetime
+from dateutil import tz
+from github_api import raw_github_request, paginated_github_request, PULLS_BASE, ISSUES_BASE
 from datetime import datetime
+import google.appengine.ext.ndb as ndb
+from google.appengine.api import urlfetch
+from collections import defaultdict
 import json
 import re
+from sparkprs import app
+from sparkprs.utils import parse_pr_title, is_jenkins_command, contains_jenkins_command
+from sparkprs.jira_api import link_issue_to_pr
 from google.appengine.ext import ndb as ndb
 
 from sqlalchemy.types import TypeDecorator
@@ -26,6 +38,8 @@ class JSONType(TypeDecorator):
         if value is not None:
             return json.loads(value)
 
+from sparkprs import app
+from sparkprs.utils import parse_pr_title, is_jenkins_command, compute_last_jenkins_outcome
 
 prs_jiras = db.Table(
     "prs_jiras",
@@ -74,6 +88,12 @@ class User(db.Model):
             session.flush()
         return user
 
+    # Raw JSON data
+    pr_json = ndb.JsonProperty()
+    pr_comments_json = ndb.JsonProperty(compressed=True)
+    files_json = ndb.JsonProperty(compressed=True)
+    # ETags for limiting our GitHub requests
+    etag = ndb.StringProperty()
 
 class JIRAIssue(db.Model):
 
@@ -182,10 +202,11 @@ class PullRequest(db.Model):
         ("Docs", "docs", "docs|README"),
         ("EC2", "ec2", "ec2"),
         ("SQL", "sql", "sql"),
-        ("MLlib", "mllib", "mllib"),
+        ("MLlib", "mllib|ml", "mllib|/ml/|docs/ml"),
         ("GraphX", "graphx|pregel", "graphx"),
         ("Streaming", "stream|flume|kafka|twitter|zeromq", "streaming"),
-        ]
+        ("R", "SparkR", "(^r/)|src/main/r/|api/r/"),
+    ]
 
     @property
     def components(self):
@@ -203,6 +224,10 @@ class PullRequest(db.Model):
                     any(re.search(filename_regex, f, re.I) for f in modified_files):
                 components.append(component_name)
         return components or ["Core"]
+
+    @property
+    def raw_title(self):
+        return (self.pr_json and self.pr_json["title"]) or self.title or ""
 
     @property
     def parsed_title(self):
@@ -255,6 +280,12 @@ class KVS(ndb.Model):
         res = KVS.get_by_id(key, use_cache=False, use_memcache=False)
         if res is not None:
             return res.value
+
+    @property
+    def shepherd_display_name(self):
+        shepherd = self.issue_json["fields"]['customfield_12311620']
+        if shepherd:
+            return shepherd['displayName']
 
     @classmethod
     def put(cls, key_str, value):

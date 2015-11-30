@@ -3,8 +3,10 @@ python:
   - "2.7"
 install:
   - pip install pep8 --use-mirrors
+sudo: false
 script:
   - pep8
+  - pip install -r requirements.txt
   - python -m doctest sparkprs/utils.py
   - npm install .
   - npm install -g grunt-cli

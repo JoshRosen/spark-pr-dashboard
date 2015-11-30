@@ -1,6 +1,8 @@
 ## Spark PR Review Board
 
 [![Build Status](https://travis-ci.org/databricks/spark-pr-dashboard.svg?branch=master)](https://travis-ci.org/databricks/spark-pr-dashboard)
+[![devDependency
+Status](https://david-dm.org/databricks/spark-pr-dashboard/dev-status.svg)](https://david-dm.org/databricks/spark-pr-dashboard#info=devDependencies)
 
 This repository hosts the code for [spark-prs.appspot.com](http://spark-prs.appspot.com), a tool for assisting in [Apache Spark](https://github.com/apache/spark/) pull request review.
 
@@ -51,7 +53,7 @@ For now, we commit both the `.jsx` source files and generated `.js` files.  In t
 
 For Python code, we follow the [PEP8](https://www.python.org/dev/peps/pep-0008) style, with the exception of a 100-character maximum line length instead 80.
 
-For Javascript code, we roughly follow the [Airbnb stlye guide](https://github.com/airbnb/javascript).
+For Javascript code, we roughly follow the [Airbnb style guide](https://github.com/airbnb/javascript).
 
 To perform style checks:
 
@@ -62,4 +64,4 @@ grunt lint
 
 ## License
 
-This project is licensed under the Apache 2.0 License. See LICENSE for full license text.
+This project is licensed under the Apache 2.0 License. See [LICENSE](LICENSE) for full license text.

@@ -5,12 +5,11 @@ define([
   function(React, UrlMixin) {
     "use strict";
 
-    var SubNavigationItem = React.createClass({displayName: 'SubNavigationItem',
+    var SubNavigationItem = React.createClass({displayName: "SubNavigationItem",
       mixins: [UrlMixin],
       onClick: function(event) {
         var component = this.props.component;
         this.pushAnchor(component);
-        this.props.onClick(component);
       },
 
       render: function() {
@@ -24,13 +23,9 @@ define([
       }
     });
 
-    var SubNavigation = React.createClass({displayName: 'SubNavigation',
+    var SubNavigation = React.createClass({displayName: "SubNavigation",
       getDefaultProps: function() {
         return {prsCountByGroup: []};
-      },
-
-      _onClick: function(component) {
-        this.props.onClick(component);
       },
 
       render: function() {
@@ -49,8 +44,7 @@ define([
             key: item.component, 
             component: item.component, 
             label: label, 
-            active: item.component === this.props.active, 
-            onClick: this._onClick}));
+            active: item.component === this.props.active}));
         }
 
         return (

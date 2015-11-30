@@ -40,8 +40,10 @@ define([
           placement: "left",
           html: true,
           title: function() {
+            var postTime = _this.props.comment.date[0];
             return "<a href='" + _this.props.comment.url + "'>Comment</a> from <a href='/users/" +
-              _this.props.username + "'>" + _this.props.username + "</a>";
+              _this.props.username + "'>" + _this.props.username + "</a>, posted " +
+              "<abbr title='" + postTime + "'>" + $.timeago(postTime) + "</abbr>";
           },
           content: function() {
             var rendered_markdown = marked(_this.props.comment.body);
@@ -55,7 +57,11 @@ define([
               return rendered_markdown;
             }
           }
-        });
+        }).click(function(e) {
+           // Hack to fix comment popovers in Firefox.
+           e.preventDefault();
+           $(this).focus();
+         });
       },
 
       render: function() {
@@ -109,9 +115,10 @@ define([
 
       render: function() {
         var pr = this.props.pr;
-        var jiraLinks = _.map(pr.parsed_title.jiras, function(number) {
-          return (<JIRALink key={number} number={number}/>);
+        var jiraLinkRows = _.map(pr.parsed_title.jiras, function(number) {
+          return (<li><JIRALink key={number} number={number}/></li>);
         });
+        var jiraLinks = <ul className="jira-links-list">{jiraLinkRows}</ul>;
 
         var commenters = _.map(pr.commenters, function(comment) {
           return (
@@ -126,7 +133,7 @@ define([
           <i className="glyphicon glyphicon-ok"></i> :
           <i className="glyphicon glyphicon-remove"></i>);
 
-        var pullLink = "https://www.github.com/apache/spark/pull/" + pr.number;
+        var pullLink = "https://github.com/apache/spark/pull/" + pr.number;
 
         var jenkinsOutcome = jenkinsOutcomes[pr.last_jenkins_outcome];
         var iconClass = "glyphicon glyphicon-" + jenkinsOutcome.iconName;
@@ -135,8 +142,10 @@ define([
         var lastJenkinsComment = pr.last_jenkins_comment;
         if (lastJenkinsComment) {
           var username = lastJenkinsComment.user.login;
+          var postTime = lastJenkinsComment.date[0];
           var title = "<a href='" + lastJenkinsComment.html_url + "'>Comment</a> from " +
-            "<a href='/users/" + username + "'>" + username + "</a>";
+            "<a href='/users/" + username + "'>" + username + "</a>, posted " +
+             "<abbr title='" + postTime + "'>" + $.timeago(postTime) + "</abbr>";
           var content = marked(lastJenkinsComment.body);
 
           jenkinsCell = (
@@ -196,6 +205,9 @@ define([
               </a>
             </td>
             <td>
+              <span>{pr.jira_shepherd_display_name}</span>
+            </td>
+            <td>
               {commenters}
             </td>
             <td>
@@ -229,6 +241,7 @@ define([
         'Issue Type': function(row) { return row.props.pr.jira_issuetype_name; },
         'Title': function(row) { return row.props.pr.parsed_title.title.toLowerCase(); },
         'Author': function(row) { return row.props.pr.user.toLowerCase(); },
+        'Shepherd': function(row) { return row.props.pr.jira_shepherd_display_name || ''; },
         'Commenters': function(row) { return row.props.pr.commenters.length; },
         'Changes': function(row) { return row.props.pr.lines_changed; },
         'Merges': function(row) { return row.props.pr.is_mergeable; },
@@ -244,6 +257,7 @@ define([
           "Issue Type",
           "Title",
           "Author",
+          "Shepherd",
           "Commenters",
           "Changes",
           "Merges",

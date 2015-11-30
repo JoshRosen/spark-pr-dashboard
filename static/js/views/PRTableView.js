@@ -21,7 +21,7 @@ define([
       Unknown: {label: "Unknown", iconName: "question-sign"}
     };
 
-    var JIRALink = React.createClass({displayName: 'JIRALink',
+    var JIRALink = React.createClass({displayName: "JIRALink",
       render: function() {
         var link = "http://issues.apache.org/jira/browse/SPARK-" + this.props.number;
         return (
@@ -32,7 +32,7 @@ define([
       }
     });
 
-    var Commenter = React.createClass({displayName: 'Commenter',
+    var Commenter = React.createClass({displayName: "Commenter",
       componentDidMount: function() {
         var _this = this;
         $(this.refs.commenter.getDOMNode()).popover({
@@ -40,8 +40,10 @@ define([
           placement: "left",
           html: true,
           title: function() {
+            var postTime = _this.props.comment.date[0];
             return "<a href='" + _this.props.comment.url + "'>Comment</a> from <a href='/users/" +
-              _this.props.username + "'>" + _this.props.username + "</a>";
+              _this.props.username + "'>" + _this.props.username + "</a>, posted " +
+              "<abbr title='" + postTime + "'>" + $.timeago(postTime) + "</abbr>";
           },
           content: function() {
             var rendered_markdown = marked(_this.props.comment.body);
@@ -55,7 +57,11 @@ define([
               return rendered_markdown;
             }
           }
-        });
+        }).click(function(e) {
+           // Hack to fix comment popovers in Firefox.
+           e.preventDefault();
+           $(this).focus();
+         });
       },
 
       render: function() {
@@ -80,7 +86,7 @@ define([
       }
     });
 
-    var TestWithJenkinsButton = React.createClass({displayName: 'TestWithJenkinsButton',
+    var TestWithJenkinsButton = React.createClass({displayName: "TestWithJenkinsButton",
       onClick: function() {
         var prNum = this.props.pr.number;
         var shouldTest = confirm("Are you sure you want to test PR " + prNum + " with Jenkins?");
@@ -100,7 +106,7 @@ define([
       }
     });
 
-    var PRTableRow = React.createClass({displayName: 'PRTableRow',
+    var PRTableRow = React.createClass({displayName: "PRTableRow",
       componentDidMount: function() {
         if (this.refs.jenkinsPopover !== undefined) {
           $(this.refs.jenkinsPopover.getDOMNode()).popover();
@@ -109,9 +115,10 @@ define([
 
       render: function() {
         var pr = this.props.pr;
-        var jiraLinks = _.map(pr.parsed_title.jiras, function(number) {
-          return (React.createElement(JIRALink, {key: number, number: number}));
+        var jiraLinkRows = _.map(pr.parsed_title.jiras, function(number) {
+          return (React.createElement("li", null, React.createElement(JIRALink, {key: number, number: number})));
         });
+        var jiraLinks = React.createElement("ul", {className: "jira-links-list"}, jiraLinkRows);
 
         var commenters = _.map(pr.commenters, function(comment) {
           return (
@@ -126,7 +133,7 @@ define([
           React.createElement("i", {className: "glyphicon glyphicon-ok"}) :
           React.createElement("i", {className: "glyphicon glyphicon-remove"}));
 
-        var pullLink = "https://www.github.com/apache/spark/pull/" + pr.number;
+        var pullLink = "https://github.com/apache/spark/pull/" + pr.number;
 
         var jenkinsOutcome = jenkinsOutcomes[pr.last_jenkins_outcome];
         var iconClass = "glyphicon glyphicon-" + jenkinsOutcome.iconName;
@@ -135,15 +142,17 @@ define([
         var lastJenkinsComment = pr.last_jenkins_comment;
         if (lastJenkinsComment) {
           var username = lastJenkinsComment.user.login;
+          var postTime = lastJenkinsComment.date[0];
           var title = "<a href='" + lastJenkinsComment.html_url + "'>Comment</a> from " +
-            "<a href='/users/" + username + "'>" + username + "</a>";
+            "<a href='/users/" + username + "'>" + username + "</a>, posted " +
+             "<abbr title='" + postTime + "'>" + $.timeago(postTime) + "</abbr>";
           var content = marked(lastJenkinsComment.body);
 
           jenkinsCell = (
             React.createElement("span", {ref: "jenkinsPopover", tabIndex: "0", 
-              'data-toggle': "popover", 'data-trigger': "focus", 
-              'data-placement': "left", 'data-html': "true", 
-              'data-title': title, 'data-content': content}, 
+              "data-toggle": "popover", "data-trigger": "focus", 
+              "data-placement": "left", "data-html": "true", 
+              "data-title": title, "data-content": content}, 
               React.createElement("i", {className: iconClass}), 
               React.createElement("span", {className: "jenkins-outcome-link"}, 
                 jenkinsOutcome.label
@@ -196,6 +205,9 @@ define([
               )
             ), 
             React.createElement("td", null, 
+              React.createElement("span", null, pr.jira_shepherd_display_name)
+            ), 
+            React.createElement("td", null, 
               commenters
             ), 
             React.createElement("td", null, 
@@ -217,7 +229,7 @@ define([
       }
     });
 
-    var PRTableView = React.createClass({displayName: 'PRTableView',
+    var PRTableView = React.createClass({displayName: "PRTableView",
       propTypes: {
         prs: React.PropTypes.array.isRequired
       },
@@ -229,6 +241,7 @@ define([
         'Issue Type': function(row) { return row.props.pr.jira_issuetype_name; },
         'Title': function(row) { return row.props.pr.parsed_title.title.toLowerCase(); },
         'Author': function(row) { return row.props.pr.user.toLowerCase(); },
+        'Shepherd': function(row) { return row.props.pr.jira_shepherd_display_name || ''; },
         'Commenters': function(row) { return row.props.pr.commenters.length; },
         'Changes': function(row) { return row.props.pr.lines_changed; },
         'Merges': function(row) { return row.props.pr.is_mergeable; },
@@ -244,6 +257,7 @@ define([
           "Issue Type",
           "Title",
           "Author",
+          "Shepherd",
           "Commenters",
           "Changes",
           "Merges",
